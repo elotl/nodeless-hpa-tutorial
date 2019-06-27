@@ -55,27 +55,31 @@ http://a446b4b66fd724db8823aebbaac29945-1022133427.us-east-1.elb.amazonaws.com:8
 
 ### Step 4: Create HPA for `resource-consumer`
 
+Scale up if CPU utilization goes above 50%. Set min replicas to 1, max to 20.
 ```
-kubectl autoscale deployment resource-consumer --cpu-percent=50 --min=1 --max=10
+kubectl autoscale deployment resource-consumer --cpu-percent=50 --min=1 --max=20
 ```
 
 Wait for percentage utilization to transition from `unknown` to a number (takes upto 20 seconds).
 ```
-ubuntu@ip-10-0-100-234:~/metrics-server$ kubectl get hpa
+ubuntu@ip-10-0-100-234:~$ kubectl get hpa
 NAME                REFERENCE                      TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
-resource-consumer   Deployment/resource-consumer   <unknown>/50%   1         10        0          4s
+resource-consumer   Deployment/resource-consumer   <unknown>/50%   1         20        0          11s
 
-ubuntu@ip-10-0-100-234:~/metrics-server$ kubectl get hpa
+ubuntu@ip-10-0-100-234:~$ kubectl get hpa
 NAME                REFERENCE                      TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-resource-consumer   Deployment/resource-consumer   1%/50%    1         10        1          26s
+resource-consumer   Deployment/resource-consumer   1%/50%    1         20        1          63s
+ubuntu@ip-10-0-100-234:~$ 
 ```
 
 ### Step 5: Generate load over 50% to trigger horizontal pod autoscaling
 
-Please note that we skipping setup/configure/management of Cluster Autoscaler!
+*Please note that we skipping setup/configure/management of Cluster Autoscaler!*
+
+As `resource-consumer` to consume 600 millicores will be consumed for 300 seconds.
 
 ```
-curl --data "millicores=60&durationSec=600" $RESOURCE_CONSUMER_ADDRESS/ConsumeCPU
+curl --data "millicores=600&durationSec=300" $RESOURCE_CONSUMER_ADDRESS/ConsumeCPU
 ```
 
 Watch deployments, replicasets, pods, hpa.
@@ -85,27 +89,36 @@ watch --differences kubectl get deployments,replicasets,pods,hpa
 ```
 
 ```
-Every 2.0s: kubectl get deployments,replicasets,pods,hpa                                                Thu Jun 27 21:40:10 2019
-
 NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.extensions/resource-consumer   2/2     2            2           11m
+deployment.extensions/resource-consumer   12/12   12           12          101m
 
 NAME                                                 DESIRED   CURRENT   READY   AGE
-replicaset.extensions/resource-consumer-6758b8d5dd   2         2         2       11m
+replicaset.extensions/resource-consumer-6758b8d5dd   12        12        12      101m
 
 NAME                                     READY   STATUS    RESTARTS   AGE
-pod/resource-consumer-6758b8d5dd-5wvdc   1/1     Running   0          11m
-pod/resource-consumer-6758b8d5dd-dj9ls   1/1     Running   0          53s
+pod/resource-consumer-6758b8d5dd-4s6pt   1/1     Running   0          3m30s
+pod/resource-consumer-6758b8d5dd-5fl2k   1/1     Running   0          3m45s
+pod/resource-consumer-6758b8d5dd-5wvdc   1/1     Running   0          101m
+pod/resource-consumer-6758b8d5dd-f6z82   1/1     Running   0          4m46s
+pod/resource-consumer-6758b8d5dd-lgjwd   1/1     Running   0          3m45s
+pod/resource-consumer-6758b8d5dd-n5c4t   1/1     Running   0          3m45s
+pod/resource-consumer-6758b8d5dd-pktl8   1/1     Running   0          3m45s
+pod/resource-consumer-6758b8d5dd-qggc2   1/1     Running   0          4m46s
+pod/resource-consumer-6758b8d5dd-rjl65   1/1     Running   0          4m46s
+pod/resource-consumer-6758b8d5dd-scx8c   1/1     Running   0          3m30s
+pod/resource-consumer-6758b8d5dd-sps4m   1/1     Running   0          3m30s
+pod/resource-consumer-6758b8d5dd-wbqts   1/1     Running   0          3m30s
 
 NAME                                                    REFERENCE                      TARGETS   MINPODS   MAXPODS   REPLICAS
 AGE
-horizontalpodautoscaler.autoscaling/resource-consumer   Deployment/resource-consumer   61%/50%   1         10        2
-8m12s
-
+horizontalpodautoscaler.autoscaling/resource-consumer   Deployment/resource-consumer   11%/50%   1         20        12
+19m
 ```
 
-Notice the second pod `resource-consumer-6758b8d5dd-dj9ls` triggered by HPA in response to cpu consumption going over 50%.
+Notice the 11 new pod provisioned by HPA in response to the load.
+
+Under the covers, Nodeless k8s manifested just-in-time capacity for these pods. There was no Cluster Autoscaler to configure or manage!
 
 ### Acknowledgements
 
-This tutorial is built on top of [Matt Kelley's tutorial](https://blog.containership.io/cerebral-vs-kubernetes-cluster-autoscaler/). We are grateful to his work in identifying and fixing bugs in Metrics Server.
+This tutorial is built on top of [Matt Kelley's tutorial](https://blog.containership.io/cerebral-vs-kubernetes-cluster-autoscaler/). We are grateful to his work in identifying and providing workarounds for bugs in Metrics Server.
