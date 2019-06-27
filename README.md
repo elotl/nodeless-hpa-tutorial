@@ -23,57 +23,33 @@ ubuntu@ip-10-0-100-234:~$
 
 
 ```
-ubuntu@ip-10-0-100-234:~$ https://github.com/mattkelly/metrics-server.git
--bash: https://github.com/mattkelly/metrics-server.git: No such file or directory
-ubuntu@ip-10-0-100-234:~$ git clone https://github.com/mattkelly/metrics-server.git
-Cloning into 'metrics-server'...
-remote: Enumerating objects: 9590, done.
-remote: Total 9590 (delta 0), reused 0 (delta 0), pack-reused 9590
-Receiving objects: 100% (9590/9590), 11.23 MiB | 0 bytes/s, done.
-Resolving deltas: 100% (4853/4853), done.
-Checking connectivity... done.
-
-ubuntu@ip-10-0-100-234:~$ cd metrics-server
-
-ubuntu@ip-10-0-100-234:~/metrics-server$ git checkout bugfix/deploy-1.8+
-Branch bugfix/deploy-1.8+ set up to track remote branch bugfix/deploy-1.8+ from origin.
-Switched to a new branch 'bugfix/deploy-1.8+'
-```
-
-```
-ubuntu@ip-10-0-100-234:~/metrics-server$ kubectl apply -f deploy/1.8+/
-clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
-clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
-rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
-clusterrolebinding.rbac.authorization.k8s.io/kubelet-api-admin created
-apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
-serviceaccount/metrics-server created
-deployment.extensions/metrics-server created
-service/metrics-server created
-clusterrole.rbac.authorization.k8s.io/system:metrics-server created
-clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+git clone https://github.com/mattkelly/metrics-server.git
+cd metrics-server
+git checkout bugfix/deploy-1.8+
+kubectl apply -f deploy/1.8+/
 ```
 
 ### Step 3: Run [resource-consumer](https://github.com/kubernetes/kubernetes/tree/master/test/images/resource-consumer) to generate load
 
 ```
-ubuntu@ip-10-0-100-234:~/metrics-server$ kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m'
-kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
-service/resource-consumer created
-deployment.apps/resource-consumer created
+kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m'
 ```
 
 Wait for `resource-consumer` to be in `Running` state.
 ```
-ubuntu@ip-10-0-100-234:~/metrics-server$ kubectl get pods
+$ kubectl get pods
+
 NAME                                 READY   STATUS    RESTARTS   AGE
 resource-consumer-6758b8d5dd-5wvdc   1/1     Running   0          78s
 ```
 
 Grab external-ip of its load balancer.
 ```
-ubuntu@ip-10-0-100-234:~/metrics-server$ export RESOURCE_CONSUMER_ADDRESS="http://$(kubectl get service resource-consumer -ojsonpath='{.status.loadBalancer.ingress[0].hostname}'):8080"
-ubuntu@ip-10-0-100-234:~/metrics-server$ echo $RESOURCE_CONSUMER_ADDRESS
+export RESOURCE_CONSUMER_ADDRESS="http://$(kubectl get service resource-consumer -ojsonpath='{.status.loadBalancer.ingress[0].hostname}'):8080"
+```
+
+```
+$ echo $RESOURCE_CONSUMER_ADDRESS
 http://a446b4b66fd724db8823aebbaac29945-1022133427.us-east-1.elb.amazonaws.com:8080
 ```
 
@@ -99,10 +75,7 @@ resource-consumer   Deployment/resource-consumer   1%/50%    1         10       
 Please note that we skipping setup/configure/management of Cluster Autoscaler!
 
 ```
-ubuntu@ip-10-0-100-234:~/metrics-server$ curl --data "millicores=60&durationSec=600" $RESOURCE_CONSUMER_ADDRESS/ConsumeCPU
-ConsumeCPU
-60 millicores
-600 durationSec
+curl --data "millicores=60&durationSec=600" $RESOURCE_CONSUMER_ADDRESS/ConsumeCPU
 ```
 
 Watch deployments, replicasets, pods, hpa.
@@ -131,6 +104,7 @@ horizontalpodautoscaler.autoscaling/resource-consumer   Deployment/resource-cons
 
 ```
 
+Notice the second pod `resource-consumer-6758b8d5dd-dj9ls` triggered by HPA in response to cpu consumption going over 50%.
 
 ### Acknowledgements
 
