@@ -74,7 +74,7 @@ ubuntu@ip-10-0-100-234:~$
 
 ### Step 5: Generate load over 50% to trigger horizontal pod autoscaling
 
-*Please note that we skipping setup/configure/management of Cluster Autoscaler!*
+*Please note that we did not have to setup/configure/management of Cluster Autoscaler because we are running in Nodeless mode! Yay!*
 
 As `resource-consumer` to consume 600 millicores will be consumed for 300 seconds.
 
@@ -125,4 +125,4 @@ Follow [teardown instructions from kubeadm repo](https://github.com/elotl/kubead
 
 ### Acknowledgements
 
-This tutorial is built on top of [Matt Kelley's tutorial](https://blog.containership.io/cerebral-vs-kubernetes-cluster-autoscaler/). We are grateful to his work in identifying and providing workarounds for bugs in Metrics Server.
+This tutorial is built on top of [Matt Kelly's tutorial](https://blog.containership.io/cerebral-vs-kubernetes-cluster-autoscaler/). We are grateful to his work in identifying and providing workarounds for bugs in Metrics Server.
