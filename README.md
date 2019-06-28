@@ -119,6 +119,10 @@ Notice the 11 new pod provisioned by HPA in response to the load.
 
 Under the covers, Nodeless k8s manifested just-in-time capacity for these pods. There was no Cluster Autoscaler to configure or manage!
 
+### Teardown
+
+Follow [teardown instructions from kubeadm repo](https://github.com/elotl/kubeadm-aws#teardown).
+
 ### Acknowledgements
 
 This tutorial is built on top of [Matt Kelley's tutorial](https://blog.containership.io/cerebral-vs-kubernetes-cluster-autoscaler/). We are grateful to his work in identifying and providing workarounds for bugs in Metrics Server.
