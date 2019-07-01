@@ -21,6 +21,13 @@ $ ssh -i myechuri-key2.pem ubuntu@3.86.247.178
 ubuntu@ip-10-0-100-234:~$
 ```
 
+Verify k8s cluster is up.
+```
+$ kubectl get nodes -o wide
+NAME                           STATUS   ROLES    AGE   VERSION   INTERNAL-IP    EXTERNAL-IP    OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+ip-10-0-100-17.ec2.internal    Ready    master   36s   v1.15.0   10.0.100.17    3.86.87.104    Ubuntu 16.04.6 LTS   4.4.0-1087-aws   docker://18.9.7
+ip-10-0-100-251.ec2.internal   Ready    <none>   12s   v1.15.0   10.0.100.251   3.86.187.223   Ubuntu 16.04.6 LTS   4.4.0-1087-aws   kiyot://1.2.0
+```
 
 ```
 git clone https://github.com/mattkelly/metrics-server.git
