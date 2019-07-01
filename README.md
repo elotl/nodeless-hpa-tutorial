@@ -14,14 +14,13 @@ milpa_worker_ip = 34.203.206.23
 
 ### Step 2: Deploy Kubernetes Metrics Server
 
-Log on to Kubernetes master, then deploy Kubernetes Metrics Server:
+Log on to Kubernetes master, verify cluster is up, then deploy Kubernetes Metrics Server:
 
 ```
 $ ssh -i myechuri-key2.pem ubuntu@3.86.247.178
 ubuntu@ip-10-0-100-234:~$
 ```
 
-Verify k8s cluster is up.
 ```
 $ kubectl get nodes -o wide
 NAME                           STATUS   ROLES    AGE   VERSION   INTERNAL-IP    EXTERNAL-IP    OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
