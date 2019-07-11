@@ -80,7 +80,7 @@ ubuntu@ip-10-0-100-234:~$
 
 ### Step 5: Generate load over 50% to trigger horizontal pod autoscaling
 
-*Please note that we did not have to setup/configure/management of Cluster Autoscaler because we are running in Nodeless mode! Yay!*
+*Please note that we did not have to setup/configure/monitor/manage Cluster Autoscaler because we are running in Nodeless mode! Yay!*
 
 As `resource-consumer` to consume 600 millicores will be consumed for 300 seconds.
 
