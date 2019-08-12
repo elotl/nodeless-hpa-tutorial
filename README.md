@@ -38,7 +38,7 @@ kubectl apply -f deploy/1.8+/
 ### Step 3: Run [resource-consumer](https://github.com/kubernetes/kubernetes/tree/master/test/images/resource-consumer) to generate load
 
 ```
-kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m'
+kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m' --overrides='{"apiVersion": "apps/v1", "spec":{ "template":{ "metadata": { "annotations":{"kubernetes.io/target-runtime":"kiyot"} }, "spec": { "nodeSelector": {"kubernetes.io/role": "milpa-worker"} } } } }'
 ```
 
 Wait for `resource-consumer` to be in `Running` state.
@@ -82,7 +82,7 @@ ubuntu@ip-10-0-100-234:~$
 
 *Please note that we did not have to setup/configure/monitor/manage Cluster Autoscaler because we are running in Nodeless mode! Yay!*
 
-As `resource-consumer` to consume 600 millicores will be consumed for 300 seconds.
+Ask `resource-consumer` to consume 600 millicores for 300 seconds.
 
 ```
 curl --data "millicores=600&durationSec=300" $RESOURCE_CONSUMER_ADDRESS/ConsumeCPU
