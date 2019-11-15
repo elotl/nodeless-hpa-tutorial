@@ -38,7 +38,7 @@ kubectl apply -f deploy/1.8+/
 ### Step 3: Run [resource-consumer](https://github.com/kubernetes/kubernetes/tree/master/test/images/resource-consumer) to generate load
 
 ```
-kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m' --overrides='{"apiVersion": "apps/v1", "spec":{ "template":{ "metadata": { "annotations":{"kubernetes.io/target-runtime":"kiyot"} }, "spec": { "nodeSelector": {"kubernetes.io/role": "milpa-worker"} } } } }'
+kubectl run resource-consumer --image=gcr.io/kubernetes-e2e-test-images/resource-consumer:1.4 --expose --service-overrides='{ "spec": { "type": "LoadBalancer" } }' --port 8080 --requests='cpu=100m' --overrides='{"apiVersion": "apps/v1"}'
 ```
 
 Wait for `resource-consumer` to be in `Running` state.
